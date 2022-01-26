@@ -12,6 +12,7 @@ set -ex
 : ${PRJ_PROJECT_FILE:=sensiml.xc${XC_NUMBER_BITS}.project.ini}
 : ${PRJ_OPTIONS_FILE:=sensiml.xc${XC_NUMBER_BITS}.options.ini}
 : ${PRJ_NAME:=libsensiml.${PRJ_TARGET}.xc${XC_NUMBER_BITS}.${XC_VERSION}}
+: ${PRJ_MODEL_FOLDER:-knowledgepack}
 
 #%% Tool paths
 if [ "${OS}" = "Windows_NT" ]; then
@@ -47,7 +48,7 @@ if [ "${PRJ_BUILD_LIB}" -eq 0 ]; then
 fi
 
 printf '%s\n' \
-    knowledgepack/src \
+    "${PRJ_MODEL_FOLDER}"/src \
 >> "${SOURCE_LIST_FILE}"
 
 # (Make paths relative to project dir)
