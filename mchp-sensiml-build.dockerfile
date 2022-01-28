@@ -1,7 +1,7 @@
 ARG XC_NUMBER_BITS
 ARG XC_VERSION
 
-FROM mchp-sensiml-xc${XC_NUMBER_BITS}:latest
+FROM xc${XC_NUMBER_BITS}:latest
 
 #%% Download DFP
 ARG DFP_NAME

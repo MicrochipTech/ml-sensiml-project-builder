@@ -1,9 +1,10 @@
 FROM sensiml/base_image:latest
 
-# LABEL version="${XC_VERSION}"
+# LABEL version="${XC_VERSION}.xc32.mchp"
 
 #%% Download and install MPLAB X IDE
-ENV MPLABX_VERSION=6.00
+ARG MPLABX_VERSION=6.00
+ENV MPLABX_VERSION=${MPLABX_VERSION}
 RUN \
     wget -qO /tmp/mplabx-installer.tar "http://ww1.microchip.com/downloads/en/DeviceDoc/MPLABX-v${MPLABX_VERSION}-linux-installer.tar" \
     && tar -xvf /tmp/mplabx-installer.tar && rm /tmp/mplabx-installer.tar \
@@ -15,9 +16,10 @@ RUN \
     && rm -rf /opt/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/browser-lib
 
 #%% Download and install xc* compiler
-ENV XC_VERSION=2.35
-ENV XC_NUMBER_BITS=8
-ARG X64_PRODUCT_STRING=-x64-
+ARG XC_VERSION=4.00
+ENV XC_VERSION=${XC_VERSION}
+ENV XC_NUMBER_BITS=32
+ARG X64_PRODUCT_STRING=-
 RUN \
     wget -qO /tmp/xc"${XC_NUMBER_BITS}".run "http://ww1.microchip.com/downloads/en/DeviceDoc/xc${XC_NUMBER_BITS}-v${XC_VERSION}-full-install-linux${X64_PRODUCT_STRING}installer.run" \
     && chmod a+x /tmp/xc"${XC_NUMBER_BITS}".run \
