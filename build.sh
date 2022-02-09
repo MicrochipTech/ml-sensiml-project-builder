@@ -1,18 +1,23 @@
 #!/bin/sh
 set -ex
 
+if [ "$#" -lt 2 ]; then
+    echo "usage: $0 <target-name> <project-name> [<output-directory>]"
+    exit 1
+fi
+
 #%% Environment
 : ${XC_NUMBER_BITS:=32}
-: ${XC_VERSION:=3.00}
+: ${XC_VERSION:=4.00}
 : ${MPLABX_VERSION:=6.00}
 
 #%% Build options
-: ${PRJ_TARGET:=ATSAME54P20A}
+PRJ_TARGET=${1}
 : ${PRJ_BUILD_LIB:=1}
 : ${PRJ_PROJECT_FILE:=sensiml.xc${XC_NUMBER_BITS}.project.ini}
 : ${PRJ_OPTIONS_FILE:=sensiml.xc${XC_NUMBER_BITS}.options.ini}
-: ${PRJ_NAME:=libsensiml.${PRJ_TARGET}.xc${XC_NUMBER_BITS}.${XC_VERSION}}
-: ${PRJ_MODEL_FOLDER:-knowledgepack}
+PRJ_NAME="${2:-sensiml-template}"
+DSTDIR="${3:-.}"
 
 #%% Tool paths
 if [ "${OS}" = "Windows_NT" ]; then
@@ -40,16 +45,19 @@ fi
 SOURCE_LIST_FILE=."${PRJ_NAME}".sources.txt
 rm -f "${SOURCE_LIST_FILE}"
 
+set +x
 if [ "${PRJ_BUILD_LIB}" -eq 0 ]; then
     # Add generic implementation files
     printf '%s\n' \
-        src/main.c \
+        src/ \
     >> "${SOURCE_LIST_FILE}"
 fi
 
 printf '%s\n' \
-    "${PRJ_MODEL_FOLDER}"/src \
+    knowledgepack/src/ \
 >> "${SOURCE_LIST_FILE}"
+
+set -x
 
 # (Make paths relative to project dir)
 echo "$(cat ${SOURCE_LIST_FILE} | awk '{print "../" $0}')" > "${SOURCE_LIST_FILE}"
@@ -60,13 +68,13 @@ rm -rf ${PRJ_NAME}.X
     -compilers="${XC_PATH}" \
     -device="${PRJ_TARGET}"
 
+#%% Set project configuration
+"${PRJMAKEFILESGENERATOR}" -setoptions=@"${PRJ_OPTIONS_FILE}" "${PRJ_NAME}".X@default
+
 # (Change project to library type (3) manually)
 if [ "${PRJ_BUILD_LIB}" -ne 0 ]; then
     echo "$(cat ${PRJ_NAME}.X/nbproject/configurations.xml | sed 's|\(<conf name="default" type="\)[0-9]\+|\13|g')" > "${PRJ_NAME}".X/nbproject/configurations.xml
 fi
-
-#%% Set project configuration
-"${PRJMAKEFILESGENERATOR}" -setoptions=@"${PRJ_OPTIONS_FILE}" "${PRJ_NAME}".X@default
 
 #%% Add files
 "${PRJMAKEFILESGENERATOR}" -setitems "${PRJ_NAME}".X@default \
@@ -75,7 +83,17 @@ fi
 
 #%% Finalize project
 if [ "${PRJ_BUILD_LIB}" -ne 0 ]; then
-    cd "${PRJ_NAME}".X
-    "${MAKE}"
-    cp $(find . -name "${PRJ_NAME}.X.a") ../"${PRJ_NAME}".a
+    cd "${PRJ_NAME}".X \
+    && "${MAKE}" \
+    && cp $(find . -name "${PRJ_NAME}.X.a") ../"${PRJ_NAME}".a \
+    && cd ..
+fi
+
+if [ "$(readlink -f ${DSTDIR})" != "$PWD" ]; then
+    mkdir -p "${DSTDIR}" \
+    && mv \
+        $(test -e ${PRJ_NAME} *.a -maxdepth 0 >/dev/null 2>&1) \
+        *.X \
+        src knowledgepack \
+        "${DSTDIR}"
 fi

@@ -31,16 +31,30 @@ To deploy a knowledge pack for the SAMD21 ML Eval Kit:
 | Deployment from the Analytics Studio |
 
 ## SensiML SDK Build Instructions
-The following steps cover compiling the Edge Impulse library into a static library object.
+The following steps cover compiling the SensiML library into a static library object.
 
 1. Extract the library from the step above directly into this folder.
 
 2. (Optional) Open `options.ini` and modify C as needed.
 
-3. Set the environment variables **PRJ_NAME** **DEVICE** **MPLAB_PATH**
-   **XC_PATH** as desired, then run `build.sh` to generate the library object.
-   For example:
-   - `PRJ_TARGET=ATSAME54P20A PRJ_NAME=libsensiml ./build.sh`
+3. Set the environment variables `MPLABX_VERSION XC_NUMBER_BITS XC_VERSION` as
+   desired, then run `build.sh` to generate the library object. For example:
+
+   `./build.sh ATSAME54P20A libsensiml .`
+
+## Docker Build
+To launch a Docker build for a specific target build arguments must be set as
+shown in the included example `.args` files. See `docker_build.sh` for a full
+example for building the docker image and generating the SensiML
+library/project. To run the script with non-default arguments, just set the
+corresponding variables in your environment e.g.:
+
+```bash
+PRJ_TARGET=ATSAME54P20A BUILD_ARGS_FILE=./SAME54.args PRJ_BUILD_LIB=1 ./docker_build.sh
+```
+
+See [packs.download.microchip.com](https://packs.download.microchip.com/) for
+device family pack listings.
 
 ## Integration Instructions
 Below are instructions for integrating the library object, compiled with the
@@ -51,23 +65,21 @@ steps above, into an MPLAB X project.
 
    ![Add library object](assets/addlibrary.png)
 
-2. Add the `src/ei_porting.cpp` file from this repository to your project, this implements the required Edge Impulse stubs.
-
-3. Use `src/main.cpp` as a template for integrating the Edge Impulse library
+2. Use `src/main.c` as a template for integrating the SensiML library
    into your project.
 
-4. Add the path to the directory where the SDK is extracted in your include path
-   under *Project Properties* -> *XC32 Global Options* -> *Common include dirs*
+3. Add the path to the directory where the SDK is extracted in your include path
+   under *Project Properties* -> *xc32/16/8-gcc* -> *Preprocessing and messages* -> *Common include dirs*
 
    ![Add include directory](assets/include.png)
 
-5. Ensure that the `Remove unused sections` option under *Project Properties* ->
+4. Ensure that the `Remove unused sections` option under *Project Properties* ->
    *xc32-ld* is enabled (see (2) in the image below); this will eliminate any
    unused data or functions from the SDK to reclaim device memory.
 
    ![Add include directory](assets/linker.png)
 
-You should now have your Edge Impulse model fully integrated with an MPLAB X
-project. In order to update the deployed model, simply repeat the steps from the
-[build instructions](#sensiml-sdk-build-instructions) section above.
+You should now have your SensiML model fully integrated with an MPLAB X project.
+In order to update the deployed model, simply repeat the steps from the [build
+instructions](#sensiml-sdk-build-instructions) section above.
 
