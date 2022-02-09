@@ -29,6 +29,11 @@
 // *****************************************************************************
 // *****************************************************************************
 
+void sml_model_init(void)
+{
+    kb_model_init();
+}
+
 int sml_recognition_run(SENSOR_DATA_T *data, int nsensors)
 {
     int ret;
@@ -40,7 +45,8 @@ int sml_recognition_run(SENSOR_DATA_T *data, int nsensors)
     return ret;
 }
 
-SENSOR_DATA_T read_sample(void) {
+SENSOR_DATA_T read_sample(void)
+{
     /* Implement signal data retrieval routine */
     return 0;
 }
@@ -53,9 +59,10 @@ SENSOR_DATA_T read_sample(void) {
 #define SENSOR_NUM_AXES 0
 
 
-void main(void) {
+void main(void)
+{
     /* Initialize SensiML Knowledge Pack */
-    kb_model_init();
+    sml_model_init();
 
     int class_id = 0;
     while (1) {

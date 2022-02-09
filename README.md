@@ -53,6 +53,8 @@ corresponding variables in your environment e.g.:
 PRJ_TARGET=ATSAME54P20A BUILD_ARGS_FILE=./SAME54.args PRJ_BUILD_LIB=1 ./docker_build.sh
 ```
 
+This will output the result of the build into a folder `dist/` under your current working directory.
+
 See [packs.download.microchip.com](https://packs.download.microchip.com/) for
 device family pack listings.
 
