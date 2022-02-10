@@ -40,20 +40,25 @@ The following steps cover compiling the SensiML library into a static library ob
 3. Set the environment variables `MPLABX_VERSION XC_NUMBER_BITS XC_VERSION` as
    desired, then run `build.sh` to generate the library object. For example:
 
-   `./build.sh ATSAME54P20A libsensiml .`
+   `MPLABX_VERSION=6.00 XC_VERSION=4.00 XC_NUMBER_BITS=32 ./build.sh ATSAME54P20A libsensiml .`
+
+   If MPLAB X or the XC compiler are in non-default install locations, set the
+   corresponding path directly through the `MPLABX_PATH` and `XC_PATH`
+   environment variables.
 
 ## Docker Build
 To launch a Docker build for a specific target build arguments must be set as
 shown in the included example `.args` files. See `docker_build.sh` for a full
 example for building the docker image and generating the SensiML
-library/project. To run the script with non-default arguments, just set the
-corresponding variables in your environment e.g.:
+library/project. This script can be run by passing the target name and .args
+file e.g.:
 
 ```bash
-PRJ_TARGET=ATSAME54P20A BUILD_ARGS_FILE=./SAME54.args PRJ_BUILD_LIB=1 ./docker_build.sh
+./docker_build.sh ATSAME54P20A ./SAME54.args
 ```
 
-This will output the result of the build into a folder `dist/` under your current working directory.
+This will output the result of the build into a folder `dist/` under your
+current working directory.
 
 See [packs.download.microchip.com](https://packs.download.microchip.com/) for
 device family pack listings.

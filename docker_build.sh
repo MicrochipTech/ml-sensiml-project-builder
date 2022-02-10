@@ -1,21 +1,29 @@
 #!/bin/sh
 set -ex
 
-: ${PRJ_TARGET:=AVR128DA48}
-: ${BUILD_ARGS_FILE:=./AVR-Dx.args}
+if [ "$#" -lt 2 ]; then
+    echo "usage: $0 <target-name> <project-args-file>"
+    exit 1
+fi
+
+# Input args
+PRJ_TARGET=${1}
+PRJ_ARGS_FILE=${2}
 : ${PRJ_BUILD_LIB:=1}
+PRJ_NAME=$(basename "${PRJ_ARGS_FILE%.*}" | tr [:upper:] [:lower:])
 
-. ${BUILD_ARGS_FILE}
+# Source build args
+. "${PRJ_ARGS_FILE}"
+
+# Check required build args
+test -n "${XC_NUMBER_BITS}"
+test -n "${DFP_NAME}"
+test -n "${DFP_VERSION}"
 
 docker build . \
-    -f xc${XC_NUMBER_BITS}.dockerfile \
-    -t xc${XC_NUMBER_BITS}
-
-IMAGE_TAG=$(basename ${BUILD_ARGS_FILE%.*} | tr [:upper:] [:lower:])
-docker build . \
-    -f mchp-sensiml-build.dockerfile \
-    -t $IMAGE_TAG \
-    $(cat ${BUILD_ARGS_FILE} | awk '{print "--build-arg " $0}' )
+    -f Dockerfile \
+    -t "${PRJ_NAME}" \
+    $(cat "${PRJ_ARGS_FILE}" | awk '{print "--build-arg " $0}' )
 
 mkdir -p dist
 rm -rf dist/*
@@ -24,6 +32,7 @@ rm -rf dist/*
 MSYS_NO_PATHCONV=1 docker run \
     --rm \
     -v "$(pwd)"/dist:/dist \
-    -e PRJ_BUILD_LIB=$PRJ_BUILD_LIB \
-    $IMAGE_TAG \
-    $PRJ_TARGET sensiml-template /dist
+    -e PRJ_BUILD_LIB="${PRJ_BUILD_LIB}" \
+    --env-file "${PRJ_ARGS_FILE}" \
+    "${PRJ_NAME}" \
+    "${PRJ_TARGET}" "${PRJ_NAME}" /dist

@@ -7,29 +7,50 @@ if [ "$#" -lt 2 ]; then
 fi
 
 #%% Environment
-: ${XC_NUMBER_BITS:=32}
-: ${XC_VERSION:=4.00}
-: ${MPLABX_VERSION:=6.00}
+test -n ${XC_NUMBER_BITS} \
+    || ( test -n ${PRJ_PROJECT_FILE} \
+         && test -n ${PRJ_OPTIONS_FILE} \
+         && test -n ${XC_PATH} )
+test -n ${XC_VERSION} \
+    || test -n ${XC_PATH}
+test -n ${MPLABX_VERSION} \
+    || test -n ${MPLABX_PATH}
 
 #%% Build options
 PRJ_TARGET=${1}
-: ${PRJ_BUILD_LIB:=1}
-: ${PRJ_PROJECT_FILE:=sensiml.xc${XC_NUMBER_BITS}.project.ini}
-: ${PRJ_OPTIONS_FILE:=sensiml.xc${XC_NUMBER_BITS}.options.ini}
-PRJ_NAME="${2:-sensiml-template}"
-DSTDIR="${3:-.}"
+PRJ_NAME=${2}
+DSTDIR=${3:-.}
+: ${PRJ_PROJECT_FILE:=xc${XC_NUMBER_BITS}.project.ini}
+: ${PRJ_OPTIONS_FILE:=xc${XC_NUMBER_BITS}.options.ini}
+
+test -e ${PRJ_OPTIONS_FILE} \
+&& test -e ${PRJ_PROJECT_FILE}
 
 #%% Tool paths
 if [ "${OS}" = "Windows_NT" ]; then
-    : "${MPLABX_PATH:=$PROGRAMFILES/Microchip/MPLABX/v${MPLABX_VERSION}/mplab_platform/bin}"
-    : "${XC_PATH:=$PROGRAMFILES/Microchip/xc${XC_NUMBER_BITS}/v${XC_VERSION}/bin}"
+    : ${MPLABX_PATH:="$PROGRAMFILES/Microchip/MPLABX/v${MPLABX_VERSION}/mplab_platform/bin"}
+    XC_ROOT="$PROGRAMFILES/Microchip/xc${XC_NUMBER_BITS}"
 elif [ "$(uname)" = "Darwin" ]; then
-    : "${MPLABX_PATH:=/Applications/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin}"
-    : "${XC_PATH:=/Applications/microchip/xc${XC_NUMBER_BITS}/v${XC_VERSION}/bin}"
+    : ${MPLABX_PATH:="/Applications/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin"}
+    XC_ROOT="/Applications/microchip/xc${XC_NUMBER_BITS}"
 else
-    : "${MPLABX_PATH:=/opt/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin}"
-    : "${XC_PATH:=/opt/microchip/xc${XC_NUMBER_BITS}/v${XC_VERSION}/bin}"
+    : ${MPLABX_PATH:="/opt/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin"}
+    XC_ROOT="/opt/microchip/xc${XC_NUMBER_BITS}"
 fi
+
+if [ -z "${XC_PATH}" ] && [ -z "${XC_VERSION}" ] && [ -e "${XC_ROOT}" ]; then
+    # Select latest installed version
+    XC_VERSION=$(\
+        find "${XC_ROOT}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; \
+        | sed -n 's/^v\([0-9]\+\.[0-9]\+\)$/\1/p' \
+        | sort -gr | head -n1 \
+        )
+fi
+
+: ${XC_PATH:="${XC_ROOT}/v${XC_VERSION}/bin"}
+
+#%% Check tools exist before going any further
+test -e "${XC_PATH}" && test -e "${MPLABX_PATH}"
 
 if [ "${OS}" = "Windows_NT" ]; then
     PRJMAKEFILESGENERATOR="${MPLABX_PATH}/prjMakefilesGenerator.bat"
@@ -54,7 +75,7 @@ if [ "${PRJ_BUILD_LIB}" -eq 0 ]; then
 fi
 
 printf '%s\n' \
-    knowledgepack/src/ \
+    knowledgepack/ \
 >> "${SOURCE_LIST_FILE}"
 
 set -x
@@ -92,7 +113,7 @@ fi
 if [ "$(readlink -f ${DSTDIR})" != "$PWD" ]; then
     mkdir -p "${DSTDIR}" \
     && mv \
-        $(test -e ${PRJ_NAME} *.a -maxdepth 0 >/dev/null 2>&1) \
+        *.a \
         *.X \
         src knowledgepack \
         "${DSTDIR}"
