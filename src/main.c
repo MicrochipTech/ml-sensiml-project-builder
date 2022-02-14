@@ -9,7 +9,7 @@
 
   Description:
     This file is a template for implementing a SensiML knowledge pack. It
-    implements all stubs required by the Edge Impulse SDK.
+    implements all stubs required by the SensiML SDK.
  *******************************************************************************/
 
 // *****************************************************************************
@@ -29,15 +29,22 @@
 // *****************************************************************************
 // *****************************************************************************
 
-void sml_model_init(void)
+void init_model(void)
 {
     kb_model_init();
 }
 
-int sml_recognition_run(SENSOR_DATA_T *data, int nsensors)
+/*
+* This function implements inferencing for a single model knowledgepack. Visit
+* the SensiML documentation to learn how to implement more complex models:
+* https://sensiml.com/documentation/knowledge-packs/building-a-knowledge-pack-library.html#calling-knowledge-pack-apis-from-your-code
+*/
+#define KB_MODEL_Parent_INDEX 0
+int run_model(SENSOR_DATA_T *data, int nsensors)
 {
     int ret;
-    ret = kb_run_model((SENSOR_DATA_T *) data, nsensors, 0);
+
+    ret = kb_run_model((SENSOR_DATA_T *) data, nsensors, KB_MODEL_Parent_INDEX);
     if (ret >= 0) {
         kb_reset_model(0);
     };
@@ -58,11 +65,10 @@ SENSOR_DATA_T read_sample(void)
 // *****************************************************************************
 #define SENSOR_NUM_AXES 0
 
-
 void main(void)
 {
     /* Initialize SensiML Knowledge Pack */
-    sml_model_init();
+    init_model();
 
     int class_id = 0;
     while (1) {
@@ -70,7 +76,7 @@ void main(void)
         SENSOR_DATA_T x = read_sample();
 
         /* Feed sample into the SensiML API */
-        int ret = sml_recognition_run(&x, SENSOR_NUM_AXES);
+        int ret = run_model(&x, SENSOR_NUM_AXES);
 
         /* Act on classification */
         if (ret == 0) {

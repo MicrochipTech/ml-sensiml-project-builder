@@ -113,7 +113,7 @@ fi
 if [ "$(readlink -f ${DSTDIR})" != "$PWD" ]; then
     mkdir -p "${DSTDIR}" \
     && mv \
-        *.a \
+        $(test -e "${PRJ_NAME}.a" && echo "${PRJ_NAME}.a" || true) \
         *.X \
         src knowledgepack \
         "${DSTDIR}"
