@@ -20,6 +20,7 @@ test -n ${MPLABX_VERSION} \
 PRJ_TARGET=${1}
 PRJ_NAME=${2}
 DSTDIR=${3:-.}
+: ${PRJ_BUILD_LIB:=1}
 : ${PRJ_PROJECT_FILE:=xc${XC_NUMBER_BITS}.project.ini}
 : ${PRJ_OPTIONS_FILE:=xc${XC_NUMBER_BITS}.options.ini}
 
