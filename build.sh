@@ -2,7 +2,7 @@
 set -ex
 
 if [ "$#" -lt 2 ]; then
-    echo "usage: $0 <target-name> <project-name> [<output-directory>]"
+    echo "usage: XC_NUMBER_BITS=XX $0 <target-name> <project-name> [<output-directory>]"
     exit 1
 fi
 
@@ -11,10 +11,6 @@ test -n ${XC_NUMBER_BITS} \
     || ( test -n ${PRJ_PROJECT_FILE} \
          && test -n ${PRJ_OPTIONS_FILE} \
          && test -n ${XC_PATH} )
-test -n ${XC_VERSION} \
-    || test -n ${XC_PATH}
-test -n ${MPLABX_VERSION} \
-    || test -n ${MPLABX_PATH}
 
 #%% Build options
 PRJ_TARGET=${1}
@@ -29,15 +25,26 @@ test -e ${PRJ_OPTIONS_FILE} \
 
 #%% Tool paths
 if [ "${OS}" = "Windows_NT" ]; then
-    : ${MPLABX_PATH:="$PROGRAMFILES/Microchip/MPLABX/v${MPLABX_VERSION}/mplab_platform/bin"}
+    MPLABX_ROOT="$PROGRAMFILES/Microchip/MPLABX"
     XC_ROOT="$PROGRAMFILES/Microchip/xc${XC_NUMBER_BITS}"
 elif [ "$(uname)" = "Darwin" ]; then
-    : ${MPLABX_PATH:="/Applications/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin"}
+    MPLABX_ROOT="/Applications/microchip/mplabx"
     XC_ROOT="/Applications/microchip/xc${XC_NUMBER_BITS}"
 else
-    : ${MPLABX_PATH:="/opt/microchip/mplabx/v${MPLABX_VERSION}/mplab_platform/bin"}
+    MPLABX_ROOT="/opt/microchip/mplabx"
     XC_ROOT="/opt/microchip/xc${XC_NUMBER_BITS}"
 fi
+
+if [ -z "${MPLABX_PATH}" ] && [ -z "${MPLABX_VERSION}" ] && [ -e "${MPLABX_ROOT}" ]; then
+    # Select latest installed version
+    MPLABX_VERSION=$(\
+        find "${MPLABX_ROOT}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; \
+        | sed -n 's/^v\([0-9]\+\.[0-9]\+\)$/\1/p' \
+        | sort -gr | head -n1 \
+        )
+fi
+
+: ${MPLABX_PATH:="${MPLABX_ROOT}/v${MPLABX_VERSION}/mplab_platform/bin"}
 
 if [ -z "${XC_PATH}" ] && [ -z "${XC_VERSION}" ] && [ -e "${XC_ROOT}" ]; then
     # Select latest installed version
