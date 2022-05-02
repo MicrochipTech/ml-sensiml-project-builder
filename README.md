@@ -31,9 +31,11 @@ To deploy a knowledge pack for the SAMD21 ML Eval Kit:
 | Deployment from the Analytics Studio |
 
 ## SensiML SDK Build Instructions
-The following steps cover compiling the SensiML library into a static library object.
+The following steps cover compiling the SensiML source code into a static library object.
 
-1. Extract the library from the step above directly into this folder.
+1. Extract the library archive from the step above directly into this folder.
+   The zip file should contain a folder named `knowledgepack` where all the
+   SensiML source code is located.
 
 2. (Optional) Open `options.ini` and modify C as needed.
 
@@ -42,9 +44,14 @@ The following steps cover compiling the SensiML library into a static library ob
 
    `MPLABX_VERSION=6.00 XC_VERSION=4.00 XC_NUMBER_BITS=32 ./build.sh ATSAME54P20A libsensiml .`
 
-   If MPLAB X or the XC compiler are in non-default install locations, set the
-   corresponding path directly through the `MPLABX_PATH` and `XC_PATH`
+   If MPLAB and/or XC version is unspecified, the program will select the latest
+   versions found on your system in the default install locations. If MPLAB X or
+   the XC compiler are in non-default install locations, you can manually set
+   the corresponding path directly through the `MPLABX_PATH` and `XC_PATH`
    environment variables.
+
+4. See the [integration instructions](#integration-instructions) below to
+   integrate the library with your MPLAB X project.
 
 ## Docker Build
 To launch a Docker build for a specific target build arguments must be set as
@@ -72,11 +79,13 @@ steps above, into an MPLAB X project.
 
    ![Add library object](assets/addlibrary.png)
 
-2. Use `src/main.c` as a template for integrating the SensiML library
-   into your project.
+2. Extract the SensiML deployment archive somewhere into your project
+   directory.
 
-3. Add the path to the directory where the SDK is extracted in your include path
-   under *Project Properties* -> *xc32/16/8-gcc* -> *Preprocessing and messages* -> *Common include dirs*
+3. Add the path to the `inc` folder from the SensiML deployment archive (e.g.
+   `../knowledgepack/sensiml/inc`) into your include path under *Project
+   Properties* -> *xc32/16/8-gcc* -> *Preprocessing and messages* -> *Common
+   include dirs*
 
    ![Add include directory](assets/include.png)
 
@@ -85,6 +94,9 @@ steps above, into an MPLAB X project.
    unused data or functions from the SDK to reclaim device memory.
 
    ![Add include directory](assets/linker.png)
+
+5. Use `src/main.c` as a template for integrating the SensiML library
+   into your project.
 
 You should now have your SensiML model fully integrated with an MPLAB X project.
 In order to update the deployed model, simply repeat the steps from the [build
