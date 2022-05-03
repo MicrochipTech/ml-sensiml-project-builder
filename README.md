@@ -44,11 +44,11 @@ The following steps cover compiling the SensiML source code into a static librar
 
    `MPLABX_VERSION=6.00 XC_VERSION=4.00 XC_NUMBER_BITS=32 ./build.sh ATSAME54P20A libsensiml .`
 
-   If MPLAB and/or XC version is unspecified, the program will select the latest
-   versions found on your system in the default install locations. If MPLAB X or
-   the XC compiler are in non-default install locations, you can manually set
-   the corresponding path directly through the `MPLABX_PATH` and `XC_PATH`
-   environment variables.
+   If MPLAB and/or XC versions are unspecified, the program will select the
+   latest versions found on your system in the default install locations. If
+   MPLAB X or the XC compiler are in non-default install locations, you can
+   manually set the corresponding path directly through the `MPLABX_PATH` and
+   `XC_PATH` environment variables.
 
 4. See the [integration instructions](#integration-instructions) below to
    integrate the library with your MPLAB X project.
@@ -90,8 +90,8 @@ steps above, into an MPLAB X project.
    ![Add include directory](assets/include.png)
 
 4. Ensure that the `Remove unused sections` option under *Project Properties* ->
-   *xc32-ld* is enabled (see (2) in the image below); this will eliminate any
-   unused data or functions from the SDK to reclaim device memory.
+   *xc32-ld* is enabled (option is shown in the image below); this will
+   eliminate any unused data or functions from the SDK to reclaim device memory.
 
    ![Add include directory](assets/linker.png)
 
