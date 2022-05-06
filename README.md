@@ -1,13 +1,25 @@
+![https://www.microchip.com/](assets/microchip.png)
 # SensiML Project Builder
-This repository contains instructions for creating a library object from an
-[SensiML Analytics Studio](https://sensiml.com/products/analytics-studio/) project for any xc32
-supported platform.
 
-Notes:
-- This script has only been tested under linux (ubuntu), [Git
-  Bash](https://gitforwindows.org/), and macOS.
+
+# Contents
+<!-- no toc -->
+- [Overview](#overview)
+- [Knowledge Pack Deployment](#knowledge-pack-deployment)
+- [Knowledge Pack Compilation](#knowledge-pack-compilation)
+- [Knowledge Pack Integration](#knowledge-pack-integration)
+
+# Overview
+This repository contains instructions for creating a library object from a
+[SensiML Analytics Studio](https://sensiml.com/products/analytics-studio/)
+project deployment for any xc8, xc16, or xc32 supported platform.
+
+## Usage Notes
+
+- If you plan on running `build.sh` from a Windows machine you will require [Git
+  Bash](https://gitforwindows.org/).
 - `*.options.ini` can be modified to set additional project options; for help
-  call the mplab script `prjMakefilesGenerator -setoptions=@ -help`
+  call the MPLAB script `prjMakefilesGenerator -setoptions=@ -help`
   + NB: all relative paths are considered relative to the project root folder
     (.X folder)
 - `*.project.ini` is just a placeholder - the **languageToolchain** and
@@ -17,27 +29,41 @@ Notes:
 ## Software Used
 * MPLAB® X IDE *>=6.00* (https://microchip.com/mplab/mplab-x-ide)
 
-## Model Deployment
-To deploy a knowledge pack for the SAMD21 ML Eval Kit:
+# Knowledge Pack Deployment
+To deploy a knowledge pack from the SensiML Analytics Studio:
 
 1. Open up your SensiML project in the [Analytics Studio](https://app.sensiml.cloud/) and navigate to the *Download Model* tab.
 2. Select `Microchip SAMD21 ML Eval Kit` from the *HW Platform* options.
-3. Select one of *Binary*, *Library* or *Source* from the *Format* options. *Note: source format is only available for upper tier customers*.
-4. Select the appropriate sensor configuration for your project from the *Data Source* options. Note that this configuration should match the one you used to capture the data your model was trained with.
+   - *Although SAMD21 ML Eval Kit is specified as the hardware platform, the
+   resulting source code should be compatible with any Microchip platform.*
+3. Select one of *Binary*, *Library* or *Source* from the *Format* options.
+   - *Source format is only available for upper tier SensiML customers*.
+4. Select the appropriate sensor configuration for your project from the *Data
+   Source* options.
+
+   - *Note that this configuration should match the one you used to capture the
+   data your model was trained with.*
+
+   - *This step is only relevant for the SAMD21 ML Eval Kit - in all other cases
+   you will have to manually verify your sensor configuration*
 5. Click the *Download* button to download the model.
 
-| ![https://www.microchip.com/](assets/deployment.jpeg) |
-| :--: |
-| Deployment from the Analytics Studio |
+   | ![https://www.microchip.com/](assets/deployment.jpeg) |
+   | :--: |
+   | Deployment from the Analytics Studio |
 
-## SensiML SDK Build Instructions
-The following steps cover compiling the SensiML source code into a static library object.
+# Knowledge Pack Compilation
+
+The following steps cover compiling the SensiML source code into a static
+library object.
+
+## Using `build.sh`
 
 1. Extract the library archive from the step above directly into this folder.
    The zip file should contain a folder named `knowledgepack` where all the
    SensiML source code is located.
 
-2. (Optional) Open `options.ini` and modify C as needed.
+2. (Optional) Open `options.ini` and modify as needed.
 
 3. Set the environment variables `MPLABX_VERSION XC_NUMBER_BITS XC_VERSION` as
    desired, then run `build.sh` to generate the library object. For example:
@@ -53,24 +79,25 @@ The following steps cover compiling the SensiML source code into a static librar
 4. See the [integration instructions](#integration-instructions) below to
    integrate the library with your MPLAB X project.
 
-## Docker Build
-To launch a Docker build for a specific target build arguments must be set as
-shown in the included example `.args` files. See `docker_build.sh` for a full
-example for building the docker image and generating the SensiML
-library/project. This script can be run by passing the target name and .args
-file e.g.:
+## Using Docker
+
+For convenience, `docker_build.sh` is provided which contains a full example for
+building the docker image and generating the SensiML library/project. This
+script can be run by passing the target name and the corresponding .args file e.g.:
 
 ```bash
 ./docker_build.sh ATSAME54P20A args/SAME54.args
 ```
 
-This will output the result of the build into a folder `dist/` under your
-current working directory.
+The output of the build process will be placed in a folder named `dist/` under
+your current working directory.
 
-See [packs.download.microchip.com](https://packs.download.microchip.com/) for
-device family pack listings.
+Note: The `.args` files included in this repository may not always be up to
+date. Check
+[packs.download.microchip.com](https://packs.download.microchip.com/) for the
+most up to date device family pack listings.
 
-## Integration Instructions
+# Knowledge Pack Integration
 Below are instructions for integrating the library object, compiled with the
 steps above, into an MPLAB X project.
 
